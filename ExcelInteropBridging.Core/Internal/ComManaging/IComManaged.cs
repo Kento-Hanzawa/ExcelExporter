@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InteropBridging.Internal
+namespace ExcelInteropBridging.Core
 {
 	/// <summary>
 	/// COM オブジェクトをラッピングする機能を提供します。このインターフェースを実装するクラスは、<see cref="IDisposable.Dispose"/> からの COM リソース解放を保証する必要があります。

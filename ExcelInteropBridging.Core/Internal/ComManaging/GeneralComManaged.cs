@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace InteropBridging.Internal
+namespace ExcelInteropBridging.Core
 {
 	/// <summary>
 	/// COM リソース解放の最低限の機能のみを保証する <see cref="IComManaged{T}"/> を提供します。
@@ -26,24 +26,23 @@ namespace InteropBridging.Internal
 		}
 
 		#region IDisposable Support
-		private bool disposedValue = false;
+		private bool disposed = false;
 
 		void Dispose(bool disposing)
 		{
-			if (!disposedValue)
+			if (disposed) return;
+
+			if (disposing)
 			{
-				if (disposing)
-				{
-				}
-
-				if (internalComObject != null)
-				{
-					Marshal.FinalReleaseComObject(internalComObject);
-					internalComObject = default;
-				}
-
-				disposedValue = true;
 			}
+
+			if (internalComObject != null)
+			{
+				Marshal.FinalReleaseComObject(internalComObject);
+				internalComObject = default;
+			}
+
+			disposed = true;
 		}
 
 		~GeneralComManaged()

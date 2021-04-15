@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Office.Interop.Excel;
 
-namespace InteropBridging.Internal
+namespace ExcelInteropBridging.Core
 {
 	internal static class ExcelExtensions
 	{
@@ -48,6 +48,23 @@ namespace InteropBridging.Internal
 						{
 							yield return mdWorksheet;
 						}
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// 全ての <see cref="Worksheet"/> を取得します。（遅延実行専用）
+		/// </summary>
+		public static IEnumerable<IComManaged<Worksheet>> GetAllWorksheets(this Workbook workbook)
+		{
+			using (IComManaged<Sheets> mdWorksheets = ComManaged.Manage(workbook.Worksheets))
+			{
+				for (var i = 1; i <= mdWorksheets.ComObject.Count; i++)
+				{
+					using (IComManaged<Worksheet> mdWorksheet = ComManaged.Manage((Worksheet)mdWorksheets.ComObject[i]))
+					{
+						yield return mdWorksheet;
 					}
 				}
 			}
@@ -102,6 +119,30 @@ namespace InteropBridging.Internal
 								{
 									yield return mdListObject;
 								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// 全ての <see cref="ListObject"/> を取得します。（遅延実行専用）
+		/// </summary>
+		public static IEnumerable<IComManaged<ListObject>> GetAllListObjects(this Workbook workbook)
+		{
+			using (IComManaged<Sheets> mdWorksheets = ComManaged.Manage(workbook.Worksheets))
+			{
+				for (var sheetIndex = 1; sheetIndex <= mdWorksheets.ComObject.Count; sheetIndex++)
+				{
+					using (IComManaged<Worksheet> mdWorksheet = ComManaged.Manage((Worksheet)mdWorksheets.ComObject[sheetIndex]))
+					using (IComManaged<ListObjects> mdListObjects = ComManaged.Manage(mdWorksheet.ComObject.ListObjects))
+					{
+						for (var listObjIndex = 1; listObjIndex <= mdListObjects.ComObject.Count; listObjIndex++)
+						{
+							using (IComManaged<ListObject> mdListObject = ComManaged.Manage(mdListObjects.ComObject[listObjIndex]))
+							{
+								yield return mdListObject;
 							}
 						}
 					}

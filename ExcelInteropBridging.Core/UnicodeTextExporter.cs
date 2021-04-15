@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using InteropBridging.Internal;
 using Microsoft.Office.Interop.Excel;
 
-namespace InteropBridging
+namespace ExcelInteropBridging.Core
 {
 	public sealed class UnicodeTextExporter : ExcelBridge
 	{

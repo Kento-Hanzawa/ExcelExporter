@@ -1,4 +1,4 @@
-﻿namespace InteropBridging.Internal
+﻿namespace ExcelInteropBridging.Core
 {
 	/// <summary>
 	/// <see cref="IComManaged{T}"/> を作成するためのユーティリティを提供します。

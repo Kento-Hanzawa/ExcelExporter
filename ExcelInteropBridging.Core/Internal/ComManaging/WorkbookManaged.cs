@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Microsoft.Office.Interop.Excel;
 
-namespace InteropBridging.Internal
+namespace ExcelInteropBridging.Core
 {
 	/// <summary>
 	/// <see cref="Workbook"/> オブジェクト専用の COM リソース解放機能を保証する <see cref="IComManaged{T}"/> を提供します。
@@ -26,25 +26,24 @@ namespace InteropBridging.Internal
 		}
 
 		#region IDisposable Support
-		private bool disposedValue = false;
+		private bool disposed = false;
 
 		void Dispose(bool disposing)
 		{
-			if (!disposedValue)
+			if (disposed) return;
+
+			if (disposing)
 			{
-				if (disposing)
-				{
-				}
-
-				if (internalComObject != null)
-				{
-					internalComObject.Close(false);
-					Marshal.FinalReleaseComObject(internalComObject);
-					internalComObject = null;
-				}
-
-				disposedValue = true;
 			}
+
+			if (internalComObject != null)
+			{
+				internalComObject.Close(false);
+				Marshal.FinalReleaseComObject(internalComObject);
+				internalComObject = null;
+			}
+
+			disposed = true;
 		}
 
 		~WorkbookManaged()

@@ -7,7 +7,7 @@
     <ProjectGuid>{F871FFCA-3FFD-47C2-A3F6-935B842DEEF0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExcelConvert.Core</RootNamespace>
+    <RootNamespace>ExcelInteropBridging.Core</RootNamespace>
     <AssemblyName>ExcelConvert.Core</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -67,7 +67,6 @@
     <Compile Include="Internal\ComManaging\WorkbookManaged.cs" />
     <Compile Include="Internal\ComManaging\WorkbooksManaged.cs" />
     <Compile Include="Internal\ExcelExtensions.cs" />
-    <Compile Include="Internal\TemporaryDirectoryScope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
-using InteropBridging.Internal;
 using Microsoft.Office.Interop.Excel;
 
-namespace InteropBridging
+namespace ExcelInteropBridging.Core
 {
 	public abstract class ExcelBridge : IDisposable
 	{
@@ -56,24 +55,22 @@ namespace InteropBridging
 		}
 
 		#region IDisposable Support
-		private bool disposedValue = false;
+		private bool disposed = false;
 
-		void Dispose(bool disposing)
+		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposedValue)
-			{
-				if (disposing)
-				{
-				}
+			if (disposed) return;
 
+			if (disposing)
+			{
 				// Dispose の順番はコンストラクタ―内の作成順と逆になるようにします。
 				managedWorkbook?.Dispose();
 				managedReferenceWorkbookList?.Dispose();
 				managedWorkbooks?.Dispose();
 				managedApplication?.Dispose();
-
-				disposedValue = true;
 			}
+
+			disposed = true;
 		}
 
 		~ExcelBridge()
