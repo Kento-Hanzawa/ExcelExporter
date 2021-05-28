@@ -58,14 +58,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExcelBridge.cs" />
-    <Compile Include="UnicodeTextExporter.cs" />
-    <Compile Include="Internal\ComManaging\ApplicationComManaged.cs" />
-    <Compile Include="Internal\ComManaging\ComManaged.cs" />
-    <Compile Include="Internal\ComManaging\GeneralComManaged.cs" />
-    <Compile Include="Internal\ComManaging\IComManaged.cs" />
-    <Compile Include="Internal\ComManaging\WorkbookManaged.cs" />
-    <Compile Include="Internal\ComManaging\WorkbooksManaged.cs" />
+    <Compile Include="ExcelBridger.cs" />
+    <Compile Include="ExcelExporterResult.cs" />
+    <Compile Include="ExcelUnicodeTextExporter.cs" />
+    <Compile Include="Internal\ComManaged.cs" />
+    <Compile Include="Internal\IComManaged.cs" />
     <Compile Include="Internal\ExcelExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
