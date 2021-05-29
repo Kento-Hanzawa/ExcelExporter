@@ -14,7 +14,6 @@
   <ItemGroup>
     <PackageReference Include="ConsoleAppFramework" Version="3.3.0" />
     <PackageReference Include="ConsoleAppFramework.WebHosting" Version="3.3.0" />
-    <PackageReference Include="MessagePack" Version="2.2.85" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -25,5 +25,9 @@
   <ItemGroup>
     <AdditionalFiles Include="BannedSymbols.txt" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExcelInteropBridging\ExcelInteropBridging.csproj" />
+  </ItemGroup>
   
 </Project>
