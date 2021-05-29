@@ -2,21 +2,19 @@
 
 namespace ExcelInteropBridging.Core
 {
-	public readonly struct ExcelExporterResult
-	{
-		private readonly string rangeName;
-		private readonly string rangeString;
-		private readonly string exportPath;
+    public sealed class ExcelExporterResult
+    {
+        private readonly string destFile;
 
-		public string RangeName => rangeName;
-		public string RangeString => rangeString;
-		public FileInfo ExportFile => new FileInfo(exportPath);
+        public string RangeName { get; }
+        public string RangeString { get; }
+        public FileInfo DestFile { get { return new FileInfo(destFile); } }
 
-		internal ExcelExporterResult(string rangeName, string rangeString, string exportPath)
-		{
-			this.rangeName = rangeName;
-			this.rangeString = rangeString;
-			this.exportPath = exportPath;
-		}
-	}
+        internal ExcelExporterResult(string rangeName, string rangeString, string destPath)
+        {
+            this.RangeName = rangeName;
+            this.RangeString = rangeString;
+            this.destFile = destPath;
+        }
+    }
 }

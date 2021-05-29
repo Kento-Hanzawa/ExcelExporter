@@ -7,12 +7,16 @@ using Microsoft.Office.Interop.Excel;
 
 namespace ExcelInteropBridging.Core
 {
-    public abstract class ExcelBridger : IDisposable
+    internal sealed class ExcelBridger : IDisposable
     {
-        private protected readonly IComManaged<Application> mApplication;
-        private protected readonly IComManaged<Workbooks> mWorkbooks;
-        private protected readonly IComManaged<Workbook> mWorkbook;
-        private readonly CompositeDisposable mReferenceWorkbookList;
+        private readonly IComManaged<Application> mgApplication;
+        private readonly IComManaged<Workbooks> mgWorkbooks;
+        private readonly IComManaged<Workbook> mgWorkbook;
+        private readonly CompositeDisposable mgWorkbookReferences;
+
+        public IComManaged<Application> MgApplication => mgApplication;
+        public IComManaged<Workbooks> MgWorkbooks => mgWorkbooks;
+        public IComManaged<Workbook> MgWorkbook => mgWorkbook;
 
 
 
@@ -21,38 +25,38 @@ namespace ExcelInteropBridging.Core
         {
         }
 
-        public ExcelBridger(FileInfo source, IEnumerable<FileInfo> reference)
+        public ExcelBridger(FileInfo source, IEnumerable<FileInfo> references)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (!source.Exists) throw new FileNotFoundException($"エクセルファイルが見つかりません。", source.FullName);
 
-            reference = reference != null ? reference.Distinct(new FileFullNameComparer()) : Array.Empty<FileInfo>();
-            if (reference.Any(file => !file.Exists))
+            references = references != null ? references.Distinct(new FileFullNameComparer()) : Array.Empty<FileInfo>();
+            if (references.Any(file => !file.Exists))
             {
-                FileInfo notFound = reference.FirstOrDefault(file => !file.Exists);
+                FileInfo notFound = references.FirstOrDefault(file => !file.Exists);
                 throw new FileNotFoundException($"外部参照エクセルファイルのいずれかが見つかりません。", notFound.FullName);
             }
 
             try
             {
                 // Application
-                mApplication = ComManaged.AsManaged(new Application());
-                mApplication.ComObject.DisplayAlerts = false;
-                mApplication.ComObject.ScreenUpdating = false;
-                mApplication.ComObject.AskToUpdateLinks = false;
+                mgApplication = ComManaged.AsManaged(new Application());
+                mgApplication.ComObject.DisplayAlerts = false;
+                mgApplication.ComObject.ScreenUpdating = false;
+                mgApplication.ComObject.AskToUpdateLinks = false;
                 // Workbooks
-                mWorkbooks = ComManaged.AsManaged(mApplication.ComObject.Workbooks);
+                mgWorkbooks = ComManaged.AsManaged(mgApplication.ComObject.Workbooks);
 
                 // 外部参照エクセルは、ターゲットエクセル内のリンクデータが [#REF!] に更新されるのを防ぐために使用します。
                 // 先に外部参照エクセルを開いておくことで、データ更新を未然に防げます。
-                mReferenceWorkbookList = new CompositeDisposable();
-                foreach (var file in reference)
+                mgWorkbookReferences = new CompositeDisposable();
+                foreach (var file in references)
                 {
-                    mReferenceWorkbookList.Add(ComManaged.AsManaged(mWorkbooks.ComObject.Open(file.FullName, 3, true)));
+                    mgWorkbookReferences.Add(ComManaged.AsManaged(mgWorkbooks.ComObject.Open(file.FullName, 3, true)));
                 }
 
                 // Workbook
-                mWorkbook = ComManaged.AsManaged(mWorkbooks.ComObject.Open(source.FullName, 3, true));
+                mgWorkbook = ComManaged.AsManaged(mgWorkbooks.ComObject.Open(source.FullName, 3, true));
             }
             catch
             {
@@ -66,60 +70,60 @@ namespace ExcelInteropBridging.Core
         /// <summary>
         /// 指定したシート番号の <see cref="Worksheet"/> を取得します。シートが存在しない場合は <see langword="null"/> が返されます。
         /// </summary>
-        private protected IComManaged<Worksheet> GetWorksheet(int sheetIndex)
+        public IComManaged<Worksheet> GetWorksheet(int sheetIndex)
         {
-            using (var mSheets = ComManaged.AsManaged(mWorkbook.ComObject.Worksheets))
+            using (var mgSheets = ComManaged.AsManaged(mgWorkbook.ComObject.Worksheets))
             {
-                var mWorksheet = ComManaged.AsManaged((Worksheet)mSheets.ComObject[sheetIndex]);
-                if (mWorksheet.ComObject == null)
+                var mgWorksheet = ComManaged.AsManaged((Worksheet)mgSheets.ComObject[sheetIndex]);
+                if (mgWorksheet.ComObject == null)
                 {
-                    mWorksheet.Dispose();
+                    mgWorksheet.Dispose();
                     return null;
                 }
-                return mWorksheet;
+                return mgWorksheet;
             }
         }
 
         /// <summary>
         /// 指定したシート名に一致する <see cref="Worksheet"/> を取得します。シートが存在しない場合は <see langword="null"/> が返されます。
         /// </summary>
-        private protected IComManaged<Worksheet> GetWorksheet(string sheetName)
+        public IComManaged<Worksheet> GetWorksheet(string sheetName)
         {
-            using (var mSheets = ComManaged.AsManaged(mWorkbook.ComObject.Worksheets))
+            using (var mgSheets = ComManaged.AsManaged(mgWorkbook.ComObject.Worksheets))
             {
-                var mWorksheet = ComManaged.AsManaged((Worksheet)mSheets.ComObject[sheetName]);
-                if (mWorksheet.ComObject == null)
+                var mgWorksheet = ComManaged.AsManaged((Worksheet)mgSheets.ComObject[sheetName]);
+                if (mgWorksheet.ComObject == null)
                 {
-                    mWorksheet.Dispose();
+                    mgWorksheet.Dispose();
                     return null;
                 }
-                return mWorksheet;
+                return mgWorksheet;
             }
         }
 
         /// <summary>
         /// 全ての <see cref="Worksheet"/> を取得します。（遅延実行専用）
         /// </summary>
-        private protected IEnumerable<IComManaged<Worksheet>> GetWorksheetAny()
+        public IEnumerable<IComManaged<Worksheet>> GetWorksheetAnyEnumerable()
         {
-            return GetWorksheetAny(null);
+            return GetWorksheetAnyEnumerable(null);
         }
 
         /// <summary>
         /// 指定した条件を満たす全ての <see cref="Worksheet"/> を取得します。（遅延実行専用）
         /// </summary>
         /// <exception cref="ArgumentNullException"><paramref name="predicate"/> が <see langword="null"/> です。</exception>
-        private protected IEnumerable<IComManaged<Worksheet>> GetWorksheetAny(Predicate<IComManaged<Worksheet>> predicate)
+        public IEnumerable<IComManaged<Worksheet>> GetWorksheetAnyEnumerable(Predicate<IComManaged<Worksheet>> predicate)
         {
-            using (var mSheets = ComManaged.AsManaged(mWorkbook.ComObject.Worksheets))
+            using (var mgSheets = ComManaged.AsManaged(mgWorkbook.ComObject.Worksheets))
             {
-                for (var i = 1; i <= mSheets.ComObject.Count; i++)
+                for (var i = 1; i <= mgSheets.ComObject.Count; i++)
                 {
-                    using (var mWorksheet = ComManaged.AsManaged((Worksheet)mSheets.ComObject[i]))
+                    using (var mgWorksheet = ComManaged.AsManaged((Worksheet)mgSheets.ComObject[i]))
                     {
-                        if ((mWorksheet.ComObject != null) && (predicate?.Invoke(mWorksheet) ?? true))
+                        if ((mgWorksheet.ComObject != null) && (predicate?.Invoke(mgWorksheet) ?? true))
                         {
-                            yield return mWorksheet;
+                            yield return mgWorksheet;
                         }
                     }
                 }
@@ -131,24 +135,24 @@ namespace ExcelInteropBridging.Core
         /// <summary>
         /// 指定したテーブル名に一致する <see cref="ListObject"/> を取得します。テーブルが存在しない場合は <see langword="null"/> が返されます。
         /// </summary>
-        private protected IComManaged<ListObject> GetListObject(string tableName)
+        public IComManaged<ListObject> GetListObject(string tableName)
         {
-            using (var mSheets = ComManaged.AsManaged(mWorkbook.ComObject.Worksheets))
+            using (var mgSheets = ComManaged.AsManaged(mgWorkbook.ComObject.Worksheets))
             {
-                for (var sheetIndex = 1; sheetIndex <= mSheets.ComObject.Count; sheetIndex++)
+                for (var sheetIndex = 1; sheetIndex <= mgSheets.ComObject.Count; sheetIndex++)
                 {
-                    using (var mWorksheet = ComManaged.AsManaged((Worksheet)mSheets.ComObject[sheetIndex]))
-                    using (var mListObjects = ComManaged.AsManaged(mWorksheet.ComObject.ListObjects))
+                    using (var mgWorksheet = ComManaged.AsManaged((Worksheet)mgSheets.ComObject[sheetIndex]))
+                    using (var mgListObjects = ComManaged.AsManaged(mgWorksheet.ComObject.ListObjects))
                     {
-                        for (var listObjIndex = 1; listObjIndex <= mListObjects.ComObject.Count; listObjIndex++)
+                        for (var listObjIndex = 1; listObjIndex <= mgListObjects.ComObject.Count; listObjIndex++)
                         {
-                            var mListObject = ComManaged.AsManaged(mListObjects.ComObject[listObjIndex]);
-                            if ((mListObject.ComObject == null) || (mListObject.ComObject.Name != tableName))
+                            var mgListObject = ComManaged.AsManaged(mgListObjects.ComObject[listObjIndex]);
+                            if ((mgListObject.ComObject == null) || (mgListObject.ComObject.Name != tableName))
                             {
-                                mListObject.Dispose();
+                                mgListObject.Dispose();
                                 continue;
                             }
-                            return mListObject;
+                            return mgListObject;
                         }
                     }
                 }
@@ -159,31 +163,31 @@ namespace ExcelInteropBridging.Core
         /// <summary>
         /// 全ての <see cref="ListObject"/> を取得します。（遅延実行専用）
         /// </summary>
-        private protected IEnumerable<IComManaged<ListObject>> GetListObjectAny()
+        public IEnumerable<IComManaged<ListObject>> GetListObjectAnyEnumerable()
         {
-            return GetListObjectAny(null);
+            return GetListObjectAnyEnumerable(null);
         }
 
         /// <summary>
         /// 指定した条件を満たす全ての <see cref="ListObject"/> を取得します。（遅延実行専用）
         /// </summary>
         /// <exception cref="ArgumentNullException"><paramref name="predicate"/> が <see langword="null"/> です。</exception>
-        private protected IEnumerable<IComManaged<ListObject>> GetListObjectAny(Predicate<IComManaged<ListObject>> predicate)
+        public IEnumerable<IComManaged<ListObject>> GetListObjectAnyEnumerable(Predicate<IComManaged<ListObject>> predicate)
         {
-            using (var mSheets = ComManaged.AsManaged(mWorkbook.ComObject.Worksheets))
+            using (var mgSheets = ComManaged.AsManaged(mgWorkbook.ComObject.Worksheets))
             {
-                for (var sheetIndex = 1; sheetIndex <= mSheets.ComObject.Count; sheetIndex++)
+                for (var sheetIndex = 1; sheetIndex <= mgSheets.ComObject.Count; sheetIndex++)
                 {
-                    using (var mWorksheet = ComManaged.AsManaged((Worksheet)mSheets.ComObject[sheetIndex]))
-                    using (var mListObjects = ComManaged.AsManaged(mWorksheet.ComObject.ListObjects))
+                    using (var mgWorksheet = ComManaged.AsManaged((Worksheet)mgSheets.ComObject[sheetIndex]))
+                    using (var mgListObjects = ComManaged.AsManaged(mgWorksheet.ComObject.ListObjects))
                     {
-                        for (var listObjIndex = 1; listObjIndex <= mListObjects.ComObject.Count; listObjIndex++)
+                        for (var listObjIndex = 1; listObjIndex <= mgListObjects.ComObject.Count; listObjIndex++)
                         {
-                            using (var mListObject = ComManaged.AsManaged(mListObjects.ComObject[listObjIndex]))
+                            using (var mgListObject = ComManaged.AsManaged(mgListObjects.ComObject[listObjIndex]))
                             {
-                                if ((mListObject.ComObject != null) && (predicate?.Invoke(mListObject) ?? true))
+                                if ((mgListObject.ComObject != null) && (predicate?.Invoke(mgListObject) ?? true))
                                 {
-                                    yield return mListObject;
+                                    yield return mgListObject;
                                 }
                             }
                         }
@@ -200,7 +204,7 @@ namespace ExcelInteropBridging.Core
         /// <returns>全シート名の列挙。</returns>
         public string[] GetSheetNames()
         {
-            return GetWorksheetAny().Select(x => x.ComObject.Name).ToArray();
+            return GetWorksheetAnyEnumerable().Select(x => x.ComObject.Name).ToArray();
         }
 
         /// <summary>
@@ -210,9 +214,9 @@ namespace ExcelInteropBridging.Core
         /// <returns>シートが存在する場合は <see langword="true"/>。存在しない場合は <see langword="false"/>。</returns>
         public bool ContainsSheet(string sheetName)
         {
-            using (var mWorksheet = GetWorksheet(sheetName))
+            using (var mgWorksheet = GetWorksheet(sheetName))
             {
-                return mWorksheet != null;
+                return mgWorksheet != null;
             }
         }
 
@@ -224,7 +228,7 @@ namespace ExcelInteropBridging.Core
         /// <returns>全テーブル名の列挙。</returns>
         public string[] GetTableNames()
         {
-            return GetListObjectAny().Select(x => x.ComObject.Name).ToArray();
+            return GetListObjectAnyEnumerable().Select(x => x.ComObject.Name).ToArray();
         }
 
         /// <summary>
@@ -234,9 +238,9 @@ namespace ExcelInteropBridging.Core
         /// <returns>テーブルが存在する場合は <see langword="true"/>。存在しない場合は <see langword="false"/>。</returns>
         public bool ContainsTable(string tableName)
         {
-            using (var mListObject = GetListObject(tableName))
+            using (var mgListObject = GetListObject(tableName))
             {
-                return mListObject != null;
+                return mgListObject != null;
             }
         }
 
@@ -245,17 +249,17 @@ namespace ExcelInteropBridging.Core
         #region IDisposable Support
         private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposed) return;
 
             if (disposing)
             {
                 // Dispose の順番はコンストラクタ―内の作成順と逆になるようにします。
-                mWorkbook?.Dispose();
-                mReferenceWorkbookList?.Dispose();
-                mWorkbooks?.Dispose();
-                mApplication?.Dispose();
+                mgWorkbook?.Dispose();
+                mgWorkbookReferences?.Dispose();
+                mgWorkbooks?.Dispose();
+                mgApplication?.Dispose();
             }
 
             disposed = true;
