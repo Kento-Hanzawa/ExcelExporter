@@ -48,7 +48,7 @@ namespace ExcelExporter.MessagePack
             }
             else
             {
-                var result = exporter.ExportFromSheet(rangeName, new FileInfo(Path.Combine(outputDir.FullName, rangeName + ".mpack")));
+                var result = exporter.ExportFromSheet(rangeName, new FileInfo(Path.Combine(outputDir.FullName, rangeName + ".msgpack")));
                 Logger.ZLogInformation("----- ----- ----- -----");
                 Logger.ZLogInformation("出力成功: {0}", rangeName);
                 Logger.ZLogInformation("Result: {0}", result);
@@ -82,7 +82,7 @@ namespace ExcelExporter.MessagePack
             }
             else
             {
-                var result = exporter.ExportFromTable(rangeName, new FileInfo(Path.Combine(outdir.FullName, rangeName + ".mpack")));
+                var result = exporter.ExportFromTable(rangeName, new FileInfo(Path.Combine(outdir.FullName, rangeName + ".msgpack")));
                 Logger.ZLogInformation("----- ----- ----- -----");
                 Logger.ZLogInformation("出力成功: {0}", rangeName);
                 Logger.ZLogInformation("Result: {0}", result);
