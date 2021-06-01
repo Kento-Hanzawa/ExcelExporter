@@ -11,6 +11,6 @@ namespace ExcelExporter.Json
         /// </summary>
         public const string FileName = "appsettings.json";
 
-
+        public string FileExtension { get; init; } = ".json";
     }
 }

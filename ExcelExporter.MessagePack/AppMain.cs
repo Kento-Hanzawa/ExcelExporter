@@ -38,19 +38,19 @@ namespace ExcelExporter.MessagePack
                 var regex = new Regex(rangeName, RegexOptions.Singleline);
                 Logger.ZLogInformation("----- ----- ----- -----");
                 foreach (var result in exporter.ExportFromSheetAnyEnumerable(
-                    info => new FileInfo(Path.Combine(outputDir.FullName, info.RangeName + ".mpack")),
+                    info => new FileInfo(Path.Combine(outputDir.FullName, info.RangeName + Config.Value.FileExtension)),
                     info => inverseRegex ? !regex.IsMatch(info.RangeName) : regex.IsMatch(info.RangeName)))
                 {
-                    Logger.ZLogInformation("出力成功: {0}", result.RangeName);
+                    Logger.ZLogInformation("Export: {0}", result.RangeName);
                     Logger.ZLogInformation("Result: {0}", result);
                     Logger.ZLogInformation("----- ----- ----- -----");
                 }
             }
             else
             {
-                var result = exporter.ExportFromSheet(rangeName, new FileInfo(Path.Combine(outputDir.FullName, rangeName + ".msgpack")));
+                var result = exporter.ExportFromSheet(rangeName, new FileInfo(Path.Combine(outputDir.FullName, rangeName + Config.Value.FileExtension)));
                 Logger.ZLogInformation("----- ----- ----- -----");
-                Logger.ZLogInformation("出力成功: {0}", rangeName);
+                Logger.ZLogInformation("Export: {0}", rangeName);
                 Logger.ZLogInformation("Result: {0}", result);
                 Logger.ZLogInformation("----- ----- ----- -----");
             }
@@ -72,19 +72,19 @@ namespace ExcelExporter.MessagePack
                 var regex = new Regex(rangeName, RegexOptions.Singleline);
                 Logger.ZLogInformation("----- ----- ----- -----");
                 foreach (var result in exporter.ExportFromTableAnyEnumerable(
-                    info => new FileInfo(Path.Combine(outdir.FullName, info.RangeName + ".mpack")),
+                    info => new FileInfo(Path.Combine(outdir.FullName, info.RangeName + Config.Value.FileExtension)),
                     info => inverseRegex ? !regex.IsMatch(info.RangeName) : regex.IsMatch(info.RangeName)))
                 {
-                    Logger.ZLogInformation("出力成功: {0}", result.RangeName);
+                    Logger.ZLogInformation("Export: {0}", result.RangeName);
                     Logger.ZLogInformation("Result: {0}", result);
                     Logger.ZLogInformation("----- ----- ----- -----");
                 }
             }
             else
             {
-                var result = exporter.ExportFromTable(rangeName, new FileInfo(Path.Combine(outdir.FullName, rangeName + ".msgpack")));
+                var result = exporter.ExportFromTable(rangeName, new FileInfo(Path.Combine(outdir.FullName, rangeName + Config.Value.FileExtension)));
                 Logger.ZLogInformation("----- ----- ----- -----");
-                Logger.ZLogInformation("出力成功: {0}", rangeName);
+                Logger.ZLogInformation("Export: {0}", rangeName);
                 Logger.ZLogInformation("Result: {0}", result);
                 Logger.ZLogInformation("----- ----- ----- -----");
             }
