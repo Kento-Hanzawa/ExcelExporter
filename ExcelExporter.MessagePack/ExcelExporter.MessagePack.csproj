@@ -4,8 +4,9 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>1.0.1</Version>
-    <PackageReleaseNotes>1.0.1: 出力拡張子を .mpack から .msgpack に変更。
+    <Version>1.0.2</Version>
+    <PackageReleaseNotes>1.0.2: 出力拡張子を設定ファイルから変更出来るように。
+1.0.1: 出力デフォルト拡張子を .mpack から .msgpack に変更。
 1.0.0: アプリ公開。</PackageReleaseNotes>
   </PropertyGroup>
 
