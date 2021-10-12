@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using ExcelInteropBridging.Core;
+using ExcelInteropBridging.Internal;
 using CsvHelper;
 using System.Text;
 
